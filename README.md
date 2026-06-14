@@ -1,9 +1,6 @@
-# Домашнее задание "Микросервисы: принципы" - `Фомичев Анатолий`
+# Домашнее задание "Микросервисы: подходы" - `Фомичев Анатолий`
 
-## Ссылка на Д3 - https://github.com/netology-code/micros-homeworks/blob/main/11-microservices-02-principles.md
-
-## Ссылка на репозиторий - https://github.com/SLzDevOps/netology-microservice-2/tree/main/api-gateway-demo
-
+## Ссылка на Д3 - https://github.com/netology-code/micros-homeworks/blob/main/11-microservices-03-approaches.md
 
 
 ### Задача 1
@@ -90,8 +87,62 @@ UI для доступа разработчикам | Роли в OpenSearch Sec
 - Гарантированная доставка — благодаря дисковому буферу Vector и подтверждениям записи.
 ```
 
+### Задача 3
+```
+Мониторинг
+Предлагаемое решение: Prometheus + Grafana + Node Exporter + cAdvisor + Metrics exporters
+```
 
+| Компонент | Роль |
+| :--- | :--- |
+Prometheus | Сбор метрик, хранение, алертинг
+Grafana | Визуализация, дашборды
+Node Exporter | Метрики хостов (CPU, RAM, HDD, Network)
+cAdvisor | Метрики контейнеров (для каждого сервиса)
+Blackbox Exporter | Проверка доступности сервисов
+Пользовательские exporters | Метрики приложений (например, /metrics в Python/Go)
 
+```
+Архитектура взаимодействия
+
+    Host1[Хост 1] --> NodeExp[Node Exporter]
+    Host1 --> cAdvisor[cAdvisor]
+    Host1 --> AppExp[App /metrics]
+    Host2[Хост 2] --> NodeExp2[Node Exporter]
+    Host2 --> cAdvisor2[cAdvisor]
+    Prom[Prometheus] -->|pull| NodeExp
+    Prom -->|pull| cAdvisor
+    Prom -->|pull| AppExp
+    Prom -->|store| TSDB[(TSDB)]
+    Grafana[Grafana] -->|query| Prom
+    Grafana --> UI[Дашборды]
+
+Соответствие требованиям
+```
+| Требование | Решение |
+| :--- | :--- |
+Сбор метрик со всех хостов | Prometheus с конфигом file_sd_config или kubernetes_sd_config
+Метрики ресурсов хостов | Node Exporter (CPU, RAM, HDD, Network)
+Метрики ресурсов на сервис | cAdvisor (через Docker/k8s) + Node Exporter
+Специфичные метрики сервисов | /metrics endpoint (Prometheus client libraries)
+UI с запросами и агрегацией | Grafana (Explore)
+Настраиваемые панели | Grafana Dashboards (шаблоны, переменные)
+
+```
+Обоснование выбора:
+- Prometheus — стандарт индустрии для микросервисов (особенно в Kubernetes).
+- Grafana даёт гибкие дашборды, алерты, аннотации, легко делиться ссылками.
+- Экспортеры покрывают все уровни: хост (Node), контейнеры (cAdvisor), приложения (свои).
+- Pull-модель упрощает обнаружение сервисов (Service Discovery) в динамической среде.
+```
+#### Итоговая таблица
+| Задача | Решение | Ключевые компоненты |
+| :--- | :--- | :--- |
+
+Задача	Решение	Ключевые компоненты
+CI/CD | GitLab (Self-managed / SaaS) | Git, CI/CD pipelines, Runners, Container Registry, Vault
+Логи | Vector + OpenSearch + OpenSearch Dashboards | Vector агенты, Kafka-буфер, OpenSearch кластер
+Мониторинг | Prometheus + Grafana + exporters | Node Exporter, cAdvisor, Blackbox, кастомные метрики
 ```
 ```
 ```
