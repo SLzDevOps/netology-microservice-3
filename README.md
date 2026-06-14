@@ -108,13 +108,13 @@ Blackbox Exporter | Проверка доступности сервисов
     Host1[Хост 1] --> NodeExp[Node Exporter]
     Host1 --> cAdvisor[cAdvisor]
     Host1 --> AppExp[App /metrics]
-    Host2[Хост 2] --> NodeExp2[Node Exporter]
+    Host2 --> NodeExp2[Node Exporter]
     Host2 --> cAdvisor2[cAdvisor]
-    Prom[Prometheus] -->|pull| NodeExp
-    Prom -->|pull| cAdvisor
-    Prom -->|pull| AppExp
-    Prom -->|store| TSDB[(TSDB)]
-    Grafana[Grafana] -->|query| Prom
+    Prometheus -->|pull| NodeExp
+    Prometheus -->|pull| cAdvisor
+    Prometheus -->|pull| AppExp
+    Prometheus-->|store| TSDB[(TSDB)]
+    Grafana -->|query| Prom
     Grafana --> UI[Дашборды]
 
 Соответствие требованиям
@@ -135,17 +135,14 @@ UI с запросами и агрегацией | Grafana (Explore)
 - Экспортеры покрывают все уровни: хост (Node), контейнеры (cAdvisor), приложения (свои).
 - Pull-модель упрощает обнаружение сервисов (Service Discovery) в динамической среде.
 ```
+
 #### Итоговая таблица
 | Задача | Решение | Ключевые компоненты |
 | :--- | :--- | :--- |
-
-Задача	Решение	Ключевые компоненты
 CI/CD | GitLab (Self-managed / SaaS) | Git, CI/CD pipelines, Runners, Container Registry, Vault
 Логи | Vector + OpenSearch + OpenSearch Dashboards | Vector агенты, Kafka-буфер, OpenSearch кластер
 Мониторинг | Prometheus + Grafana + exporters | Node Exporter, cAdvisor, Blackbox, кастомные метрики
-```
-```
-```
+
 
 
 
