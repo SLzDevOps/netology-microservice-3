@@ -10,8 +10,10 @@
 ```
 Выбор решения: Обеспечение разработки (CI/CD)
 Предлагаемое решение: GitLab (Self-managed или SaaS)
-GitLab — это единая платформа, которая закрывает все требования "из коробки": Git-репозитории, CI/CD, реестр контейнеров, управление секретами, шаблоны и распределённые раннеры.
+GitLab — это единая платформа, которая закрывает все требования "из коробки": Git-репозитории,
+CI/CD, реестр контейнеров, управление секретами, шаблоны и распределённые раннеры.
 ```
+
 | Требование | Реализация в GitLab |
 | :--- | :--- |
 Облачная система | GitLab.com (SaaS) или Self-managed в облаке (Yandex Cloud, AWS, GCP)
@@ -25,9 +27,37 @@ GitLab — это единая платформа, которая закрыва
 Несколько конфигураций из одного репозитория | Несколько .gitlab-ci.yml или parent-child pipelines
 Кастомные шаги при сборке | Любые shell-команды, скрипты, before_script, after_script
 Собственные Docker-образы для сборки | image: myregistry.com/custom-builder:latest
-Развернуть агентов сборки на своих серверах	GitLab | Runners (Linux, Windows, k8s) с тегами
+Развернуть агентов сборки на своих серверах  | GitLab Runners (Linux, Windows, k8s) с тегами
 Параллельный запуск сборок | parallel: в jobs, несколько runner'ов
 Параллельный запуск тестов | Разбивка тестов на джобы, needs:, matrix
-Архитектура взаимодействия
 
 ```
+Архитектура взаимодействия
+    Dev[Разработчик] -->|git push| GitLab[GitLab Server]
+    GitLab -->|триггер| Runner[GitLab Runner on k8s/VM]
+    Runner -->|build| Docker[Docker image]
+    Runner -->|push| Registry[Container Registry]
+    Runner -->|deploy| K8s[Kubernetes Cluster]
+    Registry -->|pull| K8s
+    Dev -->|manual run| UI[GitLab UI]
+
+Обоснование выбора: 
+- Единый стек — не нужно интегрировать Jenkins, GitHub, Nexus, Vault отдельно.
+- Родная поддержка микросервисов — монорепозиторий или мульти-репозиторий, parent-child pipelines.
+- Безопасность — CI/CD variables + Vault integration + защита веток.
+- Масштабирование — авто-скейлинг runner'ов в Kubernetes (GitLab Operator).
+- Удобство для команды — привычный интерфейс, code review, CI/CD embedded.
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
